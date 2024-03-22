@@ -35,7 +35,7 @@ router.post('/create', auth.authenticateToken,(req,res)=>{
 router.get('/get-rooms',auth.authenticateToken, (req,res)=>{
     let user = res.locals;
 
-    var query = "SELECT name FROM project,room WHERE project.id = room.project_id AND room.host_id= ?";
+    var query = "SELECT project.id, project.name FROM project,room WHERE project.id = room.project_id AND room.host_id= ?";
     connection.query(query, [user.id],(err, results)=>{
         if(!err){
             return res.status(200).json(results);
