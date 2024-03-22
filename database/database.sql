@@ -10,3 +10,16 @@ create table users(
 )
 
 INSERT INTO users (name, lastname,email,password,status)VALUES('carlos','andres','carlos@gmail.com','123456789','true');
+
+create table project(
+    id int PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50)
+)
+
+create table room(
+    id int PRIMARY KEY AUTO_INCREMENT,
+    project_id int,
+    host_id int,
+    Foreign Key (project_id) REFERENCES project(id),
+    Foreign Key (host_id) REFERENCES users(id)
+);

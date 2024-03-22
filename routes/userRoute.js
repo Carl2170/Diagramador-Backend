@@ -35,13 +35,17 @@ router.post('/register', (req,res)=>{
 
 router.post('/login', (req,res)=>{
     const user = req.body;
-    query="SELECT email, password, status FROM users where email =?";
+    query="SELECT id,name,lastname,email, password, status FROM users where email =?";
     connection.query(query, [user.email], (err,results)=>{
         if(!err){
             if(results.length <=  0 || results[0].password != user.password){
                 return res.status(401).json({message:"Incorrect username o password"}) 
             }else if(results[0].password == user.password){
-                const response = { email: results[0].email};
+                const response = {  id:results[0].id,
+                                    name:results[0].name,
+                                    lastname:results[0].lastname,
+                                    email:results[0].email,
+                                    };
                 const accessToken = jwt.sign(response, process.env.ACCESS_TOKEN,{
                     expiresIn:"8h",
                 });
