@@ -23,3 +23,12 @@ create table room(
     Foreign Key (project_id) REFERENCES project(id),
     Foreign Key (host_id) REFERENCES users(id)
 );
+
+ALTER TABLE room
+DROP FOREIGN KEY room_ibfk_1; -- Primero elimina la restricción de clave externa existente
+
+ALTER TABLE room
+ADD CONSTRAINT room_ibfk_1 FOREIGN KEY (project_id) 
+REFERENCES project(id) ON DELETE CASCADE;
+
+SHOW CREATE TABLE room;
