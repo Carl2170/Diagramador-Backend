@@ -60,7 +60,7 @@ const loginUser = async(req, res)=>{
             const accessToken = jwt.sign(response, process.env.ACCESS_TOKEN,{
                 expiresIn:"8h",
             });
-            return res.status(200).json({token:accessToken});
+            return res.status(200).json({token:accessToken, name:results[0].name});
             }else{
             return res.status(401).json({message:"Incorrect username o password"}) 
             }
