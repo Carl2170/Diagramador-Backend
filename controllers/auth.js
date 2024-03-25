@@ -78,17 +78,12 @@ const getUser = async(req, res)=>{
     try {
         let user = res.locals;
         let query = "SELECT name, lastname ,email  FROM users WHERE id = ?";
-        console.log(user.id);
       const results= await new Promise((resolve, reject) => {
             connection.query(query, [user.id], (err, results) => {
-                console.log("entre");
                 if (err) reject(err);
                 else resolve(results);
             });
         });
-        console.log(results);
-        const {name, lastname, email}= results;
-        const user1 = {name, lastname, email}
         return res.status(200).json(results);
     } catch (error) {
         return res.status(401).json(error);
