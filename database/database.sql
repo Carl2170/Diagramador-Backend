@@ -24,6 +24,13 @@ create table room(
     Foreign Key (host_id) REFERENCES users(id)
 );
 
+create table collaborators(
+    user_id int,
+    room_id int,
+    Foreign Key (user_id) REFERENCES users(id)  ON DELETE CASCADE,
+    Foreign Key (room_id) REFERENCES room(id) ON DELETE CASCADE
+);
+
 ALTER TABLE room
 DROP FOREIGN KEY room_ibfk_1; -- Primero elimina la restricción de clave externa existente
 

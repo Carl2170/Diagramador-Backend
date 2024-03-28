@@ -90,6 +90,27 @@ const getUser = async(req, res)=>{
     }
 }
 
+const getCollaborador = async(req, res)=>{
+    try {
+        const email = req.params.email;
+        let query = "SELECT name, lastname ,email  FROM users WHERE email = ?";
+      const results= await new Promise((resolve, reject) => {
+            connection.query(query, [email], (err, results) => {
+                if (err) reject(err);
+                else resolve(results);
+            });
+        });
+
+        if(results.length>0){
+            return res.status(200).json({message:"Se encontró al usuario"});
+        }else{
+            return res.status(401).json({message:"No se encontró al usuario"});            
+        }
+    } catch (error) {
+        return res.status(401).json(error);
+    }
+}
+
 const updateUser = async (req ,res)=>{
     try {
         let uId = res.locals;
@@ -108,4 +129,4 @@ const updateUser = async (req ,res)=>{
 }
 
 
-module.exports = { registerUser, loginUser, getUser, updateUser};
+module.exports = { registerUser, loginUser, getUser, updateUser,getCollaborador};

@@ -1,7 +1,7 @@
 const express = require('express');
 const connection = require('../connection');
 const router= express.Router();
-
+const {addToCollaborators, getRoomsColaborate} = require('../controllers/room')
 
 require('dotenv').config();
 
@@ -70,15 +70,11 @@ router.get('/get-rooms',auth.authenticateToken, (req,res)=>{
     })
 })
 
-function getRoom(id, callback){
-    const query = 'SELECT * FROM room WHERE room.project_id = ?';
-    connection.query(query, [id],(error, results)=>{
-        if(error){
-            callback(error,null);
-        }else{
-            callback(null, results[0]); // Se asume que solo se espera un único registro
-        }
-    })
-}
+
+
+router.post('/to-add-collaborators', addToCollaborators)
+
+router.get('/rooms-colaborate',auth.authenticateToken,getRoomsColaborate)
+
 
 module.exports= router

@@ -1,7 +1,7 @@
 const express = require('express');
 const connection = require('../connection');
 const router= express.Router();
-const { registerUser, loginUser, getUser, updateUser} = require('../controllers/auth');
+const { registerUser, loginUser, getUser, updateUser, getCollaborador} = require('../controllers/auth');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
@@ -16,6 +16,9 @@ router.post('/login',loginUser);
 router.get('/get',auth.authenticateToken, getUser);
 
 router.patch('/update-user',auth.authenticateToken, updateUser);
+
+router.get('/get-collaborator/:email',auth.authenticateToken, getCollaborador);
+
 
 router.get('/checkToken', (req, res)=>{
     return res.status(200).json({message: "true"});
