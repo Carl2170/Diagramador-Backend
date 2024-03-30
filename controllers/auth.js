@@ -1,74 +1,56 @@
 const {encrypt, compare} = require('../helpers/bcrypt');
-const connection = require('../connection');
+//const connection = require('../connection');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+
+const User = require('../models/user');
 
 
 const registerUser = async (req, res) => {
     try {
-        let user = req.body;
-        let passwordHash;
-        let query = "SELECT email, password, status FROM users WHERE email = ?";
-        const results = await new Promise((resolve, reject) => {
-            connection.query(query, [user.email], (err, results) => {
-                if (err) reject(err);
-                else resolve(results);
-            });
+        const {name, lastname, email, password} = req.body;
+        const hashPassword = await encrypt(password);
+        const newUser = await User.create({
+            name:name,
+            lastname:lastname,
+            email:email,
+            password:hashPassword
         });
-
-        if (results.length <= 0) {
-            query = "INSERT INTO users(name, lastname, email, password, status) VALUES (?, ?, ?, ?, 'false')";
-            passwordHash=await encrypt(user.password);
-            await new Promise((resolve, reject) => {
-                connection.query(query, [user.name, user.lastname, user.email, passwordHash], (err, results) => {
-                    if (err) reject(err);
-                    else resolve(results);
-                });
-            });
-            return res.status(200).json({ message: "Successfully registered" });
-        } else {
-            return res.status(400).json({ message: "Email already exists" });
-        }
+        res.status(201).json({message:"Successfully registered"});
     } catch (error) {
-        return res.status(500).json(error);
+        res.status(500).json({error: error.message});
     }
 };
 
 const loginUser = async(req, res)=>{
-    try {
-        let user = req.body;
-        query="SELECT * FROM users where email = ?";
+    try{
+        const { email, password} = req.body
+        const user = await User.findOne({ where: { email: email } });
+        
+        if(user){
+            const checkPassword = await compare(password, user.password);
 
-        const results = await new Promise((resolve, reject) => {
-            connection.query(query, [user.email], (err, results) => {
-                if (err) reject(err);
-                else resolve(results);
-            });
-        });
-     
-        if (results.length <= 0 ) {
-            return res.status(404).json({message:"user not found"}) 
-        }else{
-            const checkPassword = await compare(user.password, results[0].password);
             if(checkPassword){
-                const response = { 
-                     id:results[0].id,
-                    name:results[0].name,
-                    lastname:results[0].lastname,
-                    email:results[0].email,
-                    };
-            const accessToken = jwt.sign(response, process.env.ACCESS_TOKEN,{
-                expiresIn:"8h",
-            });
-            return res.status(200).json({token:accessToken, name:results[0].name});
-            }else{
-            return res.status(401).json({message:"Incorrect username o password"}) 
-            }
-        }
+                const response ={
+                    id:user.id,
+                    name:user.name,
+                    lastname:user.lastname,
+                    email:user.email,
+                }
 
-    } catch (error) {
-        console.log("error");
-        return res.status(500).json(error);
+                const accessToken = jwt.sign(response, process.env.ACCESS_TOKEN,{expiresIn:"8h",});
+         
+               return res.status(200).json({token:accessToken, name:user.name, id:user.id});
+
+            }else{
+                return res.status(401 ).json({message: "Contraseña incorrecta"});
+
+            }            
+        }else{
+            res.status(404).json({ error: 'Usuario no encontrado' });
+        } 
+    }catch(error){
+        res.status(500).json({ error: 'Error interno del servidor' });
 
     }
 
@@ -76,17 +58,17 @@ const loginUser = async(req, res)=>{
 
 const getUser = async(req, res)=>{
     try {
-        let user = res.locals;
-        let query = "SELECT name, lastname ,email  FROM users WHERE id = ?";
-      const results= await new Promise((resolve, reject) => {
-            connection.query(query, [user.id], (err, results) => {
-                if (err) reject(err);
-                else resolve(results);
-            });
-        });
-        return res.status(200).json(results);
+        const user = res.locals;
+        const userBD = await User.findOne({ attributes: { exclude: ['password'] },where: { id: user.id } });
+        
+        if(userBD) return res.status(200).json(userBD);
+
+        res.status(404).json({ error: 'Usuario no encontrado' });
+
+
     } catch (error) {
-        return res.status(401).json(error);
+        res.status(500).json({ error: 'Error interno del servidor'+ error.message });
+
     }
 }
 
@@ -112,19 +94,28 @@ const getCollaborador = async(req, res)=>{
 }
 
 const updateUser = async (req ,res)=>{
+
     try {
-        let uId = res.locals;
-        let user= req.body;
-        var query = "UPDATE users SET name=?, lastname=?, email=? WHERE id=?";
-        await new Promise((resolve, reject) => {
-            connection.query(query, [user.name, user.lastname, user.email, uId.id], (err, results) => {
-                if (err) reject(err);
-                else resolve(results);
-            });
-        });
-        return res.status(200).json({message:"user updated successfully."})
+        const user = res.locals
+        const {name, lastname, email} = req.body;
+
+        const userBD = await User.findOne({ attributes: { exclude: ['password'] },where: { id: user.id } });
+
+        if(userBD){
+            await userBD.update({
+                name:name,
+                lastname:lastname,
+                email:email
+            })
+         return res.status(200).json({message:"user updated successfully."})
+
+        }else{
+            res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
     } catch (error) {
-        return res.status(500).json(err);
+        res.status(500).json({ error: 'Error interno del servidor'+ error.message });
+
     }
 }
 
