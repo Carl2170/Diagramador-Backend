@@ -1,4 +1,4 @@
-const { Sequelize } = require("sequelize");
+const  Sequelize  = require("sequelize");
 
 require('dotenv').config();
 
@@ -8,9 +8,9 @@ const password= process.env.DB_PASSWORD
 const host= process.env.DB_HOST
 const port=  process.env.DB_PORT
 
-const dialect = process.env.DB_DIALECT
+const dialect = process.env.DIALECT
 
-const sequelize = new Sequelize(database,userName,password,
+ sequelize = new Sequelize(database,userName,password,
     {   host:host,
         dialect:dialect,
         port:port,

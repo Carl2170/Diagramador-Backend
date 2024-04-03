@@ -28,6 +28,5 @@ const User = sequelize.define('User', {
 User.hasMany(Room, { onDelete: 'CASCADE' });
 Room.belongsTo(User);
 
-
-
+;
 module.exports = User;

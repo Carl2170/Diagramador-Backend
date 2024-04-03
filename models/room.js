@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../connectBD');
-const User = require('./user');
 
 const Room = sequelize.define('Room', {
         id:{
@@ -10,8 +9,13 @@ const Room = sequelize.define('Room', {
         },
         name: {
             type:DataTypes.STRING,        
+        },
+        status: {
+            type:DataTypes.STRING,
+            defaultValue: "off"
         }
     },
+    
         {
             timestamps: false
     })

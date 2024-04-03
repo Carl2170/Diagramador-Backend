@@ -2,7 +2,6 @@ const express = require('express');
 const sequelize = require('./connectBD');
  const sync= require('./models/sync')
 var cors = require ('cors');
-const connection = require('./connection');
 
 async function startApp() {
     try {
