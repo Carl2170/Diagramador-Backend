@@ -75,15 +75,9 @@ const getUser = async(req, res)=>{
 const getCollaborador = async(req, res)=>{
     try {
         const email = req.params.email;
-        let query = "SELECT name, lastname ,email  FROM users WHERE email = ?";
-      const results= await new Promise((resolve, reject) => {
-            connection.query(query, [email], (err, results) => {
-                if (err) reject(err);
-                else resolve(results);
-            });
-        });
+        const user = await User.findOne({where:{email:email}})
 
-        if(results.length>0){
+        if(user.length>0){
             return res.status(200).json({message:"Se encontró al usuario"});
         }else{
             return res.status(401).json({message:"No se encontró al usuario"});            
@@ -119,5 +113,30 @@ const updateUser = async (req ,res)=>{
     }
 }
 
+const changePassword= async (req, res)=>{
+    try {
+        const idUser = res.locals.id;
+        const {oldPassword,newPassword}= req.body
+        const user= await User.findOne({where:{id: idUser}});
 
-module.exports = { registerUser, loginUser, getUser, updateUser,getCollaborador};
+        if(user){
+            const checkPassword = await compare(oldPassword, user.password);
+            if(checkPassword){
+                const hashPassword = await encrypt(newPassword);
+                await user.update({
+                    password:hashPassword
+                })
+                return res.status(200).json({message:"password updated successfully"})
+            }else{
+                return res.status(422).json({message:"password incorrect"})
+            }
+        }else{
+            return res.status(404).json({message:"user not found"})
+        }
+    } catch (error) {
+        return res.status(500).json({error:error.message})
+
+    }
+}
+
+module.exports = { registerUser, loginUser, getUser, updateUser,getCollaborador,changePassword};
