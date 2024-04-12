@@ -57,12 +57,15 @@ function verifUserConect(arrayRoom, nameUser){
 
 function getUsersConnected(array){
   var arrayUser = [];
-  for (let index = 0; index < array.length; index++) {
-    const element = array[index];
-    if(element.status === "connected")
-      arrayUser.push(element.nameUser)
+  if(Array.isArray(array)){
+
+    for (let index = 0; index < array.length; index++) {
+      const element = array[index];
+      if(element.status === "connected")
+        arrayUser.push(element.nameUser)
+    }
+    return arrayUser;
   }
-  return arrayUser;
 }
 
 function userDesconnect(arrayRoom,nameUser){
