@@ -18,6 +18,14 @@ module.exports = (io) => {
           userConnect(usersConected[data.roomId], data.nameUser);
           socket.join(data.roomId);
         }
+        console.log(usersConected);
+         // Obtenemos la lista de sockets conectados al servidor
+      const sockets = io.sockets.sockets;
+  
+      // Filtramos los sockets para encontrar los que están en la sala específica
+      const socketsInRoom = Object.values(sockets).filter(socket => socket.rooms.has(data.roomId));
+  
+      console.log('Sockets en la sala ' + data.roomId + ':', socketsInRoom.map(socket => socket.id));
         //se emite el mensaje de conexion del usuario
         socket.emit('user-connected', { nameUser:data.nameUser });
         //se emite el mensaje de conexion a los demas
@@ -43,7 +51,35 @@ module.exports = (io) => {
         io.to(data.roomId).emit('table-user-actualice',listUsersConnected);
         socket.leave(data.roomId);
       })
+
+    //DIAGRAMA
+    //INSERCIONES DE COMPONENTES
+    //BOUNDARY
+    socket.on('add-boundary',(data)=>{
+      console.log('El usuario: ' + data.nameUser + ' en la sala: ' + data.roomId);
+
+      // Obtenemos la lista de sockets conectados al servidor
+      const sockets = io.sockets.sockets;
+  
+      // Filtramos los sockets para encontrar los que están en la sala específica
+      const socketsInRoom = Object.values(sockets).filter(socket => socket.rooms.has(data.roomId));
+  
+      console.log('Sockets en la sala ' + data.roomId + ':', socketsInRoom.map(socket => socket.id));
+  
+      // Enviamos un mensaje a cada socket en la sala (opcional)
+      socketsInRoom.forEach(socket => {
+          socket.emit('add-boundary1', { message: 'Carla Andrea Vaca Negrete' });
+      });
+  });
+
+    //  var message='Carla Andrea Vaca Negrete'
+    //    io.to(data.roomId).emit('add-boundary1', { message:message });
+      //socket.emit('add-boundary1', { message:message });
+ 
+  
     });  
+
+ 
   };
 
 function verifUserConect(arrayRoom, nameUser){
